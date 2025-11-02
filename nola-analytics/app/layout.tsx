@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nola Analytics - Dashboard de Análise de Restaurantes",
+  title: "Bem-vinda a Nola Analytics",
   description: "Dashboard de análise de restaurantes em tempo real com mais de 500 mil registros de vendas. Desenvolvido com Cube.js e Next.js.",
 };
 

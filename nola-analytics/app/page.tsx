@@ -147,7 +147,7 @@ export default function Home() {
 
         <main className="container mx-auto px-3 md:px-4 py-4 md:py-8">
           <div className="mb-3 md:mb-6">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">Dashboard de Análises</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">Bem-vinda, Maria.</h2>
             <p className="text-xs sm:text-sm md:text-base text-gray-600">
               Insights em tempo real dos seus dados de restaurante com mais de 500 mil registros de vendas.
             </p>
