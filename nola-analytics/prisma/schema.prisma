@@ -1,0 +1,286 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Dashboard configuration storage
+model Dashboard {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  config      Json     // Stores layout, charts, metrics, dimensions
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String?  // Optional user association for future multi-user support
+
+  @@index([userId])
+  @@map("dashboards")
+}
+
+// Estrutura completa de dados do sistema de restaurantes
+
+// ========== ENTIDADES BASE ==========
+
+model Store {
+  id       String @id
+  name     String
+  city     String?
+  state    String?
+  isActive Boolean @default(true)
+  isOwn    Boolean @default(true)
+  sales    Sale[]
+
+  @@map("stores")
+}
+
+model SubBrand {
+  id    String @id
+  name  String
+  sales Sale[]
+
+  @@map("sub_brands")
+}
+
+model Channel {
+  id    String @id
+  name  String
+  type  String // 'P' presencial, 'D' delivery
+  sales Sale[]
+
+  @@map("channels")
+}
+
+model Customer {
+  id         String    @id
+  customerName String?
+  email      String?
+  phoneNumber  String?
+  birthDate  DateTime?
+  sales      Sale[]
+
+  @@map("customers")
+}
+
+model PaymentType {
+  id          String    @id
+  description String
+  payments    Payment[]
+
+  @@map("payment_types")
+}
+
+// ========== CATÁLOGO ==========
+
+model Category {
+  id       String    @id
+  brandId  String?
+  name     String
+  type     String    // 'P' produto, 'I' item
+  products Product[]
+  items    Item[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String        @id
+  brandId      String?
+  categoryId   String?
+  name         String
+  category     Category?     @relation(fields: [categoryId], references: [id])
+  productSales ProductSale[]
+
+  @@index([categoryId])
+  @@map("products")
+}
+
+model Item {
+  id                   String              @id
+  brandId              String?
+  categoryId           String?
+  name                 String
+  category             Category?           @relation(fields: [categoryId], references: [id])
+  itemProductSales     ItemProductSale[]
+  itemItemProductSales ItemItemProductSale[]
+
+  @@index([categoryId])
+  @@map("items")
+}
+
+model OptionGroup {
+  id                   String              @id
+  brandId              String?
+  name                 String
+  itemProductSales     ItemProductSale[]
+  itemItemProductSales ItemItemProductSale[]
+
+  @@map("option_groups")
+}
+
+// ========== VENDAS (NÚCLEO) ==========
+
+model Sale {
+  id                String         @id
+  storeId           String
+  channelId         String
+  customerId        String?
+  subBrandId        String?
+  createdAt         DateTime
+  customerName      String?
+  saleStatusDesc    String?
+  totalAmountItems  Float?
+  totalDiscount     Float?
+  totalIncrease     Float?
+  deliveryFee       Float?
+  serviceTaxFee     Float?
+  totalAmount       Float
+  valuePaid         Float?
+  productionSeconds Int?
+  deliverySeconds   Int?
+  peopleQuantity    Int?
+  discountReason    String?
+  origin            String?
+  
+  store            Store            @relation(fields: [storeId], references: [id])
+  channel          Channel          @relation(fields: [channelId], references: [id])
+  customer         Customer?        @relation(fields: [customerId], references: [id])
+  subBrand         SubBrand?        @relation(fields: [subBrandId], references: [id])
+  productSales     ProductSale[]
+  payments         Payment[]
+  deliverySale     DeliverySale?
+  deliveryAddress  DeliveryAddress?
+
+  @@index([storeId])
+  @@index([channelId])
+  @@index([customerId])
+  @@index([subBrandId])
+  @@index([createdAt])
+  @@map("sales")
+}
+
+// ========== PRODUTOS VENDIDOS ==========
+
+model ProductSale {
+  id               String            @id
+  saleId           String
+  productId        String
+  quantity         Int
+  basePrice        Float
+  totalPrice       Float
+  observations     String?
+  
+  sale             Sale              @relation(fields: [saleId], references: [id])
+  product          Product           @relation(fields: [productId], references: [id])
+  itemProductSales ItemProductSale[]
+
+  @@index([saleId])
+  @@index([productId])
+  @@map("product_sales")
+}
+
+// ========== CUSTOMIZAÇÕES ==========
+
+model ItemProductSale {
+  id                   String              @id
+  productSaleId        String
+  itemId               String
+  optionGroupId        String
+  quantity             Int
+  additionalPrice      Float?
+  price                Float
+  observations         String?
+  
+  productSale          ProductSale         @relation(fields: [productSaleId], references: [id])
+  item                 Item                @relation(fields: [itemId], references: [id])
+  optionGroup          OptionGroup         @relation(fields: [optionGroupId], references: [id])
+  itemItemProductSales ItemItemProductSale[]
+
+  @@index([productSaleId])
+  @@index([itemId])
+  @@index([optionGroupId])
+  @@map("item_product_sales")
+}
+
+model ItemItemProductSale {
+  id                String          @id
+  itemProductSaleId String
+  itemId            String
+  optionGroupId     String
+  quantity          Int
+  additionalPrice   Float?
+  price             Float
+  
+  itemProductSale   ItemProductSale @relation(fields: [itemProductSaleId], references: [id])
+  item              Item            @relation(fields: [itemId], references: [id])
+  optionGroup       OptionGroup     @relation(fields: [optionGroupId], references: [id])
+
+  @@index([itemProductSaleId])
+  @@index([itemId])
+  @@index([optionGroupId])
+  @@map("item_item_product_sales")
+}
+
+// ========== PAGAMENTOS ==========
+
+model Payment {
+  id            String      @id
+  saleId        String
+  paymentTypeId String
+  value         Float
+  isOnline      Boolean?
+  
+  sale          Sale        @relation(fields: [saleId], references: [id])
+  paymentType   PaymentType @relation(fields: [paymentTypeId], references: [id])
+
+  @@index([saleId])
+  @@index([paymentTypeId])
+  @@map("payments")
+}
+
+// ========== DELIVERY ==========
+
+model DeliverySale {
+  id           String  @id
+  saleId       String  @unique
+  courierName  String?
+  courierPhone String?
+  courierType  String?
+  deliveryType String?
+  status       String?
+  deliveryFee  Float?
+  courierFee   Float?
+  
+  sale         Sale    @relation(fields: [saleId], references: [id])
+
+  @@index([saleId])
+  @@map("delivery_sales")
+}
+
+model DeliveryAddress {
+  id             String  @id
+  saleId         String  @unique
+  deliverySaleId String?
+  street         String?
+  number         String?
+  complement     String?
+  neighborhood   String?
+  city           String?
+  state          String?
+  postalCode     String?
+  latitude       Float?
+  longitude      Float?
+  
+  sale           Sale    @relation(fields: [saleId], references: [id])
+
+  @@index([saleId])
+  @@index([neighborhood])
+  @@index([city])
+  @@map("delivery_addresses")
+}
