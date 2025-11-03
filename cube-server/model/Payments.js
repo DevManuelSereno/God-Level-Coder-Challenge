@@ -9,6 +9,19 @@ cube(`Payments`, {
     PaymentTypes: {
       sql: `${CUBE}."paymentTypeId" = ${PaymentTypes}.id`,
       relationship: `belongsTo`
+    },
+    // Multi-hop joins through Sales
+    Channels: {
+      sql: `${Sales}."channelId" = ${Channels}.id`,
+      relationship: `belongsTo`
+    },
+    Stores: {
+      sql: `${Sales}."storeId" = ${Stores}.id`,
+      relationship: `belongsTo`
+    },
+    Customers: {
+      sql: `${Sales}."customerId" = ${Customers}.id`,
+      relationship: `belongsTo`
     }
   },
   

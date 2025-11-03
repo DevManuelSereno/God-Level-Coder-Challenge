@@ -26,10 +26,6 @@ cube(`Stores`, {
       type: `string`
     },
     
-    region: {
-      sql: `region`,
-      type: `string`
-    },
     
     city: {
       sql: `city`,

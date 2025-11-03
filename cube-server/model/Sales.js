@@ -10,13 +10,21 @@ cube(`Sales`, {
       sql: `${CUBE}."customerId" = ${Customers}.id`,
       relationship: `belongsTo`
     },
-    Products: {
-      sql: `${CUBE}."productId" = ${Products}.id`,
-      relationship: `belongsTo`
-    },
     Stores: {
       sql: `${CUBE}."storeId" = ${Stores}.id`,
       relationship: `belongsTo`
+    },
+    ProductSales: {
+      sql: `${CUBE}.id = ${ProductSales}."saleId"`,
+      relationship: `hasMany`
+    },
+    Payments: {
+      sql: `${CUBE}.id = ${Payments}."saleId"`,
+      relationship: `hasMany`
+    },
+    DeliveryAddresses: {
+      sql: `${CUBE}.id = ${DeliveryAddresses}."saleId"`,
+      relationship: `hasOne`
     }
   },
   
@@ -58,19 +66,15 @@ cube(`Sales`, {
       type: `string`
     },
     
-    productId: {
-      sql: `"productId"`,
-      type: `string`
-    },
-    
     storeId: {
       sql: `"storeId"`,
       type: `string`
     },
     
-    orderDate: {
-      sql: `"orderDate"`,
-      type: `time`
+    saleStatusDesc: {
+      sql: `"saleStatusDesc"`,
+      type: `string`,
+      title: `Status da Venda`
     },
     
     createdAt: {

@@ -9,6 +9,19 @@ cube(`ProductSales`, {
     Products: {
       sql: `${CUBE}."productId" = ${Products}.id`,
       relationship: `belongsTo`
+    },
+    // Multi-hop joins through Sales
+    Channels: {
+      sql: `${Sales}."channelId" = ${Channels}.id`,
+      relationship: `belongsTo`
+    },
+    Stores: {
+      sql: `${Sales}."storeId" = ${Stores}.id`,
+      relationship: `belongsTo`
+    },
+    Customers: {
+      sql: `${Sales}."customerId" = ${Customers}.id`,
+      relationship: `belongsTo`
     }
   },
   
@@ -30,6 +43,11 @@ cube(`ProductSales`, {
     totalQuantity: {
       sql: `quantity`,
       type: `sum`
+    },
+    
+    avgPrice: {
+      sql: `"totalPrice"`,
+      type: `avg`
     }
   },
   

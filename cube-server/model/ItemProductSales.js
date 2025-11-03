@@ -9,6 +9,24 @@ cube(`ItemProductSales`, {
     Items: {
       sql: `${CUBE}."itemId" = ${Items}.id`,
       relationship: `belongsTo`
+    },
+    // Multi-hop joins through ProductSales
+    Products: {
+      sql: `${ProductSales}."productId" = ${Products}.id`,
+      relationship: `belongsTo`
+    },
+    Sales: {
+      sql: `${ProductSales}."saleId" = ${Sales}.id`,
+      relationship: `belongsTo`
+    },
+    // Multi-hop joins through Sales
+    Channels: {
+      sql: `${Sales}."channelId" = ${Channels}.id`,
+      relationship: `belongsTo`
+    },
+    Stores: {
+      sql: `${Sales}."storeId" = ${Stores}.id`,
+      relationship: `belongsTo`
     }
   },
   

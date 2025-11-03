@@ -2,8 +2,8 @@ cube(`Products`, {
   sql: `SELECT * FROM products`,
   
   joins: {
-    Sales: {
-      sql: `${CUBE}.id = ${Sales}."productId"`,
+    ProductSales: {
+      sql: `${CUBE}.id = ${ProductSales}."productId"`,
       relationship: `hasMany`
     }
   },
@@ -26,15 +26,9 @@ cube(`Products`, {
       type: `string`
     },
     
-    category: {
-      sql: `category`,
+    categoryId: {
+      sql: `"categoryId"`,
       type: `string`
-    },
-    
-    price: {
-      sql: `price`,
-      type: `number`,
-      format: `currency`
     }
   }
 });
